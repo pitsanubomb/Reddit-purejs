@@ -15,22 +15,37 @@ const link = urlParams.get('q') || 'all';
 const url = `https://www.reddit.com/r/${link}.json`;
 
 getData(url).then((d) => {
+  const error = d.error || d.data.error
 
   const loading = document.getElementById('loading')
-
-  const data = d.data.data.children;
-  const isLoad = d.isLoad;
-  if (!isLoad) {
+  if (error) {
     root.removeChild(loading);
+    createCard('Error ' + error, '', null)
   }
-  try {
-    data.forEach(element => {
-      const wrapData = element.data;
-      createCard(wrapData.title, wrapData.url, wrapData.secure_media);
-    });
-  } catch (error) {
-    console.log('Errrrrr !!!!!!');
+  else if (d.data.data.children) {
+    const data = d.data.data.children;
+    const isLoad = d.isLoad;
+    if (data.length == 0) {
+      createCard('Error Notfound', '', null)
+    }
+    if (!isLoad) {
+      root.removeChild(loading);
+    }
+    try {
+      data.forEach(element => {
+        const wrapData = element.data;
+        createCard(wrapData.title, wrapData.url, wrapData.secure_media);
+      });
+    } catch (error) {
+
+      root.removeChild(loading);
+      createCard('Error something is wrong' + error)
+    }
+  } else {
+    root.removeChild(loading);
+    createCard('Error something is wrong')
   }
+
 })
 
 const createCard = (head, image, v) => {
