@@ -60,7 +60,7 @@ const createCard = (head, image, v) => {
     const vdoSrc = document.createElement('source')
 
     vdoEmbed.setAttribute("autoplay", "")
-    vdoEmbed.setAttribute("controls", "")
+    vdoEmbed.setAttribute("loop", "")
     vdoEmbed.className = 'w-100'
 
     if (v.reddit_video) {
@@ -74,11 +74,13 @@ const createCard = (head, image, v) => {
     }
     else if (v.oembed.provider_name === 'YouTube') {
       const htmlWrap = document.createElement('div');
+      htmlWrap.className = 'd-flex justify-content-center';
       htmlWrap.innerHTML = escapeHTML(v.oembed.html);
+      htmlWrap.firstChild.src = htmlWrap.firstChild.src + '&autoplay=1&mute=1'
       cardBody.appendChild(htmlWrap);
     } else {
-      console.log(v.oembed.thumbnail_url)
       vdoSrc.src = v.oembed.thumbnail_url.replace('-social-preview.jpg', '.mp4')
+      vdoEmbed.muted = true
       vdoEmbed.appendChild(vdoSrc)
       cardBody.appendChild(vdoEmbed);
     }
@@ -87,16 +89,10 @@ const createCard = (head, image, v) => {
   if (image.match(/bmp|webp|png|jpg|jpeg|gif$/)) {
     creaImage(cardBody, image)
   } else if (image.match(/gifv$/)) {
-    const vdoEmbed = document.createElement('video')
-    const vdoSrc = document.createElement('source')
+    const htmlWrap = document.createElement('div');
+    htmlWrap.innerHTML = `<video draggable="false" playsinline autoplay loop class="w-100"><source type="video/mp4" src="${image.replace('gifv', 'mp4')}"></video>`
+    cardBody.appendChild(htmlWrap);
 
-    vdoEmbed.setAttribute("autoplay", "")
-    vdoEmbed.setAttribute("controls", "")
-    vdoEmbed.className = 'w-100'
-
-    vdoSrc.src = image.replace('gifv', 'mp4');
-    vdoEmbed.appendChild(vdoSrc)
-    cardBody.appendChild(vdoEmbed);
   }
 
   card.appendChild(cardBody);
