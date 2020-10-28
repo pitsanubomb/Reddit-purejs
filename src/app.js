@@ -8,43 +8,55 @@ const loadUi = `<div id='loading' class="d-flex justify-content-center my-5">
 </div>
 </div>`;
 
-root.innerHTML = loadUi;
 root.className = 'container';
 const urlParams = new URLSearchParams(window.location.search);
 const link = urlParams.get('q') || 'all';
 const url = `https://www.reddit.com/r/${link}.json`;
+let a;
 
-getData(url).then((d) => {
-  const error = d.error || d.data.error
+const fetchData = (l) => {
+  root.innerHTML = loadUi;
+  getData(l).then((d) => {
+    const error = d.error || d.data.error
 
-  const loading = document.getElementById('loading')
-  if (error) {
-    root.removeChild(loading);
-    createCard('Error ' + error, '', null)
-  }
-  else if (d.data.data.children) {
-    const data = d.data.data.children;
-    const isLoad = d.isLoad;
-    if (data.length == 0) {
-      createCard('Error Notfound', '', null)
-    }
-    if (!isLoad) {
+    const loading = document.getElementById('loading')
+    if (error) {
       root.removeChild(loading);
+      createCard('Error ' + error, '', null)
     }
-    try {
-      data.forEach(element => {
-        const wrapData = element.data;
-        createCard(wrapData.title, wrapData.url, wrapData.secure_media || null);
-      });
-    } catch (error) {
-      createCard('Error something is wrong' + error)
+    else if (d.data.data.children) {
+      const data = d.data.data.children;
+      a = d.data.data.after
+      const isLoad = d.isLoad;
+      if (data.length == 0) {
+        createCard('Error Notfound', '', null)
+      }
+      if (!isLoad) {
+        root.removeChild(loading);
+      }
+      try {
+        data.forEach(element => {
+          const wrapData = element.data;
+          createCard(wrapData.title, wrapData.url, wrapData.secure_media || null);
+        });
+      } catch (error) {
+        createCard('Error something is wrong' + error)
+      }
+    } else {
+      root.removeChild(loading);
+      createCard('Error something is wrong')
     }
-  } else {
-    root.removeChild(loading);
-    createCard('Error something is wrong')
-  }
 
-})
+  })
+}
+
+onscroll = () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    fetchData(url + '?after=' + a)
+  }
+}
+
+fetchData(url)
 
 const createCard = (head, image, v) => {
   const card = document.createElement('div');
