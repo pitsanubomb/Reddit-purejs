@@ -34,11 +34,9 @@ getData(url).then((d) => {
     try {
       data.forEach(element => {
         const wrapData = element.data;
-        createCard(wrapData.title, wrapData.url, wrapData.secure_media);
+        createCard(wrapData.title, wrapData.url, wrapData.secure_media || null);
       });
     } catch (error) {
-
-      root.removeChild(loading);
       createCard('Error something is wrong' + error)
     }
   } else {
@@ -88,6 +86,17 @@ const createCard = (head, image, v) => {
 
   if (image.match(/bmp|webp|png|jpg|jpeg|gif$/)) {
     creaImage(cardBody, image)
+  } else if (image.match(/gifv$/)) {
+    const vdoEmbed = document.createElement('video')
+    const vdoSrc = document.createElement('source')
+
+    vdoEmbed.setAttribute("autoplay", "")
+    vdoEmbed.setAttribute("controls", "")
+    vdoEmbed.className = 'w-100'
+
+    vdoSrc.src = image.replace('gifv', 'mp4');
+    vdoEmbed.appendChild(vdoSrc)
+    cardBody.appendChild(vdoEmbed);
   }
 
   card.appendChild(cardBody);
