@@ -14,6 +14,12 @@ const link = urlParams.get('q') || 'all';
 const url = `https://www.reddit.com/r/${link}.json`;
 let a;
 
+onscroll = () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    fetchData(url + '?after=' + a)
+  }
+}
+
 const fetchData = (l) => {
   root.innerHTML = loadUi;
   getData(l).then((d) => {
@@ -31,7 +37,7 @@ const fetchData = (l) => {
       if (data.length == 0) {
         createCard('Error Notfound', '', null)
       }
-      if (!isLoad) {
+      if (!isLoad && loading) {
         root.removeChild(loading);
       }
       try {
@@ -48,12 +54,6 @@ const fetchData = (l) => {
     }
 
   })
-}
-
-onscroll = () => {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-    fetchData(url + '?after=' + a)
-  }
 }
 
 fetchData(url)
